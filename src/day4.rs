@@ -72,7 +72,7 @@ impl Valid for &str {
     }
 
     fn is_valid_hair(&self) -> bool {
-        let regex = Regex::new(r"#[0-9a-f]{6}").unwrap();
+        let regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
         regex.is_match(self)
     }
 
