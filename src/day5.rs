@@ -7,15 +7,17 @@ pub fn part1(input: &str) -> i32 {
 }
 
 pub fn part2(input: &str) -> i32 {
-    let ids: Vec<i32> = input
+    let mut ids: Vec<i32> = input
     .split("\n")
     .map(|x| seat_id(x))
     .collect::<Vec<i32>>();
 
-    for i in 99..=974 {
-        if !ids.contains(&i) {
-            return i;
-        }
+    ids.sort();
+
+    let mut prev = ids[0].clone();
+    for id in ids {
+        if id - prev > 1 { return id - 1}
+        prev = id;
     }
 
     0
