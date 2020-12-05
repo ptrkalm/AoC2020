@@ -1,24 +1,14 @@
+macro_rules! solve {
+    ($day:ident) => {
+        println!(stringify!($day));
+        println!("Part 1: {}",   $day::part1($day::INPUT));
+        println!("Part 2: {}\n", $day::part2($day::INPUT));
+    };
+}
+
 mod day1; mod day2; mod day3; mod day4; mod day5;
 
 fn main() {
-    println!("Day 1:");
-    println!("Part 1: {}", day1::part1(day1::INPUT));
-    println!("Part 2: {}", day1::part2(day1::INPUT));
-    println!("");
-    println!("Day 2:");
-    println!("Part 1: {}", day2::part1(day2::INPUT));
-    println!("Part 2: {}", day2::part2(day2::INPUT));
-    println!("");
-    println!("Day 3:");
-    println!("Part 1: {}", day3::part1(day3::INPUT));
-    println!("Part 2: {}", day3::part2(day3::INPUT));
-    println!("");
-    println!("Day 4:");
-    println!("Part 1: {}", day4::part1(day4::INPUT));
-    println!("Part 2: {}", day4::part2(day4::INPUT));
-    println!("");
-    println!("Day 4:");
-    println!("Part 1: {}", day5::part1(day5::INPUT));
-    println!("Part 2: {}", day5::part2(day5::INPUT));
+    solve!(day1); solve!(day2); solve!(day3); solve!(day4); solve!(day5);
 }
 
