@@ -20,6 +20,8 @@ pub fn part1(input: &str) -> i32 {
 
 pub fn part2(input: &str) -> i32 {
     let mut count = 0;
+    let hair_regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
+    let pid_regex = Regex::new(r"^[0-9]{9}$").unwrap();
     for passport in input.split("\n\n") {
         let mut fields: HashMap<&str, &str> = HashMap::new();
         for field in passport.split_whitespace() {
@@ -31,9 +33,9 @@ pub fn part2(input: &str) -> i32 {
             fields.get("iyr").unwrap_or(&"").is_valid_year(2010, 2020),
             fields.get("eyr").unwrap_or(&"").is_valid_year(2020, 2030),
             fields.get("hgt").unwrap_or(&"").is_valid_height(),
-            fields.get("hcl").unwrap_or(&"").is_valid_hair(),
+            fields.get("hcl").unwrap_or(&"").is_valid_regex(&hair_regex),
             fields.get("ecl").unwrap_or(&"").is_valid_eye(),
-            fields.get("pid").unwrap_or(&"").is_valid_pid()
+            fields.get("pid").unwrap_or(&"").is_valid_regex(&pid_regex)
          ) {
             (true, true, true, true, true, true, true) => count += 1,
             _ => {}
@@ -46,9 +48,8 @@ pub fn part2(input: &str) -> i32 {
 trait Valid {
     fn is_valid_year(&self, min: i32, max: i32) -> bool;
     fn is_valid_height(&self) -> bool;  
-    fn is_valid_hair(&self) -> bool;
+    fn is_valid_regex(&self, regex: &Regex) -> bool;
     fn is_valid_eye(&self) -> bool;
-    fn is_valid_pid(&self) -> bool;
 }
 
 impl Valid for &str {
@@ -71,19 +72,13 @@ impl Valid for &str {
         }
     }
 
-    fn is_valid_hair(&self) -> bool {
-        let regex = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
+    fn is_valid_regex(&self, regex: &Regex) -> bool {
         regex.is_match(self)
     }
 
     fn is_valid_eye(&self) -> bool {
         let colors = vec!("amb", "blu", "brn", "gry", "grn", "hzl", "oth");
         colors.contains(self)
-    }
-
-    fn is_valid_pid(&self) -> bool {
-        let regex = Regex::new(r"^[0-9]{9}$").unwrap();
-        regex.is_match(self)
     }
 }
 
