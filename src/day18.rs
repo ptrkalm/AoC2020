@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum Token {
     Number(i64),
     Op(char),
@@ -9,53 +9,70 @@ enum Token {
 pub fn part1(input: &str) -> i64 {
     parse(input)
     .iter_mut()
-    .map(|exp| eval(exp))
+    .map(|exp| eval(exp, false))
     .sum()
 }
 
 pub fn part2(input: &str) -> i64 {
     parse(input)
     .iter_mut()
-    .map(|exp| eval(exp))
+    .map(|exp| eval(exp, true))
     .sum()
 }
 
-fn eval(exp: &mut VecDeque<Token>) -> i64 {
-    let mut left: Option<i64> = None;
-    let mut op:   Option<char> = None;
+fn eval(exp: &mut VecDeque<Token>, part2: bool) -> i64 {
+    let mut value_stack: VecDeque<i64> = VecDeque::new();
+    let mut op_stack: VecDeque<Token> = VecDeque::new();    
+    
     while let Some(token) = exp.pop_front() {
         match token {
-            Token::Number(n) => {
-                if let Some(o) = op {
-                    if o == '+' {
-                        left = Some(left.unwrap() + n);
-                    } else {
-                        left = Some(left.unwrap() * n);
+            Token::Number(n) => value_stack.push_back(n),
+            Token::LParen    => op_stack.push_back(Token::LParen),
+            Token::RParen    => {
+                while let Some(op) = op_stack.pop_back() {
+                    match op {
+                        Token::LParen => break,
+                        Token::Op(op_token) => {
+                            let arg1 = value_stack.pop_back().unwrap();
+                            let arg2 = value_stack.pop_back().unwrap();
+                            if op_token == '+' {
+                                value_stack.push_back(arg1 + arg2)
+                            } else {
+                                value_stack.push_back(arg1 * arg2)
+                            }
+                        },
+                        _ => unreachable!()
                     }
-                    op = None;
-                } else {
-                    left = Some(n);
                 }
             },
-            Token::Op(o)  => op = Some(o),
-            Token::LParen => {
-                if let Some(op) = op {
-                    if op == '+' {
-                        left = Some(left.unwrap() + eval(exp));
+            Token::Op(op)    => {
+                while let Some(Token::Op(op_token)) = op_stack.back() {
+                    if part2 && op == '+' && *op_token == '*' { break }
+                    let arg1 = value_stack.pop_back().unwrap();
+                    let arg2 = value_stack.pop_back().unwrap();
+                    if *op_token == '+' {
+                        value_stack.push_back(arg1 + arg2)
                     } else {
-                        left = Some(left.unwrap() * eval(exp));
+                        value_stack.push_back(arg1 * arg2)
                     }
-                } else {
-                    left = Some(eval(exp));
+                    op_stack.pop_back();
                 }
-            },
-            Token::RParen => {
-                return left.unwrap();
+                op_stack.push_back(Token::Op(op));
             }
         }
     }
-
-    left.unwrap()
+    while let Some(Token::Op(op_token)) = op_stack.back() {
+        let arg1 = value_stack.pop_back().unwrap();
+        let arg2 = value_stack.pop_back().unwrap();
+        if *op_token == '+' {
+            value_stack.push_back(arg1 + arg2)
+        } else {
+            value_stack.push_back(arg1 * arg2)
+        }
+        op_stack.pop_back();
+    }
+     
+    value_stack[0]
 }
 
 use std::collections::VecDeque;
